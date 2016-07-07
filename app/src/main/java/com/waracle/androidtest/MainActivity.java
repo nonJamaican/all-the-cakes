@@ -1,8 +1,9 @@
 package com.waracle.androidtest;
 
 import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,12 +71,11 @@ public class MainActivity extends AppCompatActivity {
      * Improve any performance issues
      * Use good coding practices to make code more secure
      */
-    public static class PlaceholderFragment extends ListFragment {
+    public static class PlaceholderFragment extends Fragment {
 
         private static final String TAG = PlaceholderFragment.class.getSimpleName();
 
         private ListView mListView;
-        private MyAdapter mAdapter;
 
         public PlaceholderFragment() { /**/ }
 
@@ -92,19 +91,29 @@ public class MainActivity extends AppCompatActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            // Create and set the list adapter.
-            mAdapter = new MyAdapter();
-            mListView.setAdapter(mAdapter);
-
             // Load data from net.
-            try {
-                JSONArray array = loadData();
-                mAdapter.setItems(array);
-            } catch (IOException | JSONException e) {
-                Log.e(TAG, e.getMessage());
-            }
+            new AsyncTask<Void, Void, JSONArray>() {
+                @Override
+                protected JSONArray doInBackground(Void... params) {
+                    try {
+                        return loadData();
+                    } catch (IOException | JSONException e) {
+                        Log.e(TAG, e.getMessage());
+                    }
+                    return new JSONArray();
+                }
+
+                @Override
+                protected void onPostExecute(JSONArray jsonArray) {
+                    buildCakeList(jsonArray);
+                }
+            }.execute();
         }
 
+        private void buildCakeList(JSONArray jsonArray) {
+            // Create and set the list adapter.
+            mListView.setAdapter(new MyAdapter(jsonArray));
+        }
 
         private JSONArray loadData() throws IOException, JSONException {
             URL url = new URL(JSON_URL);
