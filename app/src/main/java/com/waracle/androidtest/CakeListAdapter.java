@@ -1,8 +1,6 @@
 package com.waracle.androidtest;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CakeListAdapter extends BaseAdapter {
@@ -34,12 +31,7 @@ public class CakeListAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        try {
-            return mItems.getJSONObject(position);
-        } catch (JSONException e) {
-            Log.e("", e.getMessage());
-        }
-        return null;
+        return mItems.opt(position);
     }
 
     @Override
@@ -47,7 +39,6 @@ public class CakeListAdapter extends BaseAdapter {
         return 0;
     }
 
-    @SuppressLint("ViewHolder")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
@@ -60,14 +51,10 @@ public class CakeListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        try {
-            JSONObject object = (JSONObject) getItem(position);
-            viewHolder.title.setText(object.getString("title"));
-            viewHolder.desc.setText(object.getString("desc"));
-            mImageLoader.load(object.getString("image"), viewHolder.image);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JSONObject object = (JSONObject) getItem(position);
+        viewHolder.title.setText(object.optString("title"));
+        viewHolder.desc.setText(object.optString("desc"));
+        mImageLoader.load(object.optString("image"), viewHolder.image);
 
         return convertView;
     }
