@@ -74,8 +74,9 @@ public class CakeHolderFragment extends Fragment {
     private JSONArray loadData() throws IOException, JSONException {
         URL url = new URL(JSON_URL);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        InputStream in = null;
         try {
-            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            in = new BufferedInputStream(urlConnection.getInputStream());
 
             // Can you think of a way to improve the performance of loading data
             // using HTTP headers???
@@ -93,6 +94,7 @@ public class CakeHolderFragment extends Fragment {
             // Read string as JSON.
             return new JSONArray(jsonText);
         } finally {
+            StreamUtils.close(in);
             urlConnection.disconnect();
         }
     }
